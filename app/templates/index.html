@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="auth-container">
+    <div class="particles-container">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="auth-card floating-card">
+        <div class="logo-container">
+            <h1 class="neon-text glitch">🍄 MushroomID</h1>
+            <p class="app-subtitle pulse">Определение грибов с помощью нейросетей</p>
+        </div>
+
+        <div class="auth-actions vertical">
+            <a href="/login" class="auth-button holographic-btn">
+                <span class="btn-text">Войти в систему</span>
+                <div class="hover-effect"></div>
+            </a>
+            <a href="/register" class="auth-button holographic-btn">
+                <span class="btn-text">Создать аккаунт</span>
+                <div class="hover-effect"></div>
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

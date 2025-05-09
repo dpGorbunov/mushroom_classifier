@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Идентификация грибов{% endblock %}
+{% block content %}
+<div class="dashboard-grid">
+    <div class="upload-section">
+        <div class="upload-card">
+            <h3 class="section-title">Загрузите фото гриба</h3>
+            <form method="post" action="/predict" enctype="multipart/form-data" class="upload-form">
+                <div class="drop-zone" id="drop-zone">
+                    <input type="file" name="file" id="file-input" accept="image/*" hidden>
+                    <span class="drop-text">Перетащите фото или кликните</span>
+                    <div class="preview-container">
+                        <img id="image-preview" class="preview-image">
+                    </div>
+                </div>
+                <p class="cost-info">Стоимость: 10 ₽</p>
+                <button type="submit" class="predict-button" id="submit-button" disabled>Определить вид гриба</button>
+            </form>
+
+            {% if predictions %}
+            <div class="prediction-result">
+                <div class="result-card">
+                    <h4>Последний тип гриба</h4>
+                    <p class="result-text">{{ predictions[0].result }}</p>
+                    <div class="result-meta">
+                        <span>{{ predictions[0].timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="balance-card">
+            <h3 class="section-title">Баланс</h3>
+            <p class="balance-amount">{{ balance }} ₽</p>
+            <form method="post" action="/balance" class="balance-form">
+                <input type="number" name="amount" placeholder="Сумма"
+                       class="number-input" min="0" required>
+                <button type="submit" class="icon-button">+</button>
+            </form>
+        </div>
+
+        <div class="history-card">
+            <h3 class="section-title">История проверок</h3>
+            <div class="history-list">
+                {% for prediction in predictions[:3] %}
+                <div class="history-item">
+                    <span class="item-date">{{ prediction.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                    <span class="item-text">{{ prediction.result }}</span>
+                </div>
+                {% endfor %}
+                {% if predictions|length > 3 %}
+                <button class="show-all-button" id="show-all-predictions">Показать все</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="history-card">
+            <h3 class="section-title">История пополнений счёта</h3>
+            <div class="history-list">
+                {% for transaction in transactions[:3] %}
+                <div class="history-item">
+                    <span class="item-date">{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                    <span class="item-text">{{ transaction.amount }} ₽</span>
+                </div>
+                {% endfor %}
+                {% if transactions|length > 3 %}
+                <button class="show-all-button" id="show-all-transactions">Показать все</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Функционал загрузки изображения
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const submitButton = document.getElementById('submit-button');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    ['dragover', 'dragleave', 'drop'].forEach(event => {
+        dropZone.addEventListener(event, e => {
+            e.preventDefault();
+            dropZone.classList.toggle('dragover', event === 'dragover');
+        });
+    });
+
+    fileInput.addEventListener('change', () => {
+        submitButton.disabled = !fileInput.files[0];
+        if(fileInput.files[0]) updatePreview(fileInput.files[0]);
+    });
+
+    function updatePreview(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('image-preview').src = e.target.result;
+            dropZone.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if(files.length > 0) {
+            fileInput.files = files;
+            submitButton.disabled = false;
+            updatePreview(files[0]);
+        }
+    });
+
+    // Функционал показа всей истории
+    document.getElementById("show-all-predictions")?.addEventListener("click", function() {
+        this.parentElement.innerHTML = `
+            {% for prediction in predictions %}
+            <div class="history-item">
+                <span class="item-date">{{ prediction.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span class="item-text">{{ prediction.result }}</span>
+            </div>
+            {% endfor %}
+        `;
+    });
+
+    document.getElementById("show-all-transactions")?.addEventListener("click", function() {
+        this.parentElement.innerHTML = `
+            {% for transaction in transactions %}
+            <div class="history-item">
+                <span class="item-date">{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span class="item-text">{{ transaction.amount }} ₽</span>
+            </div>
+            {% endfor %}
+        `;
+    });
+</script>
+{% endblock %}

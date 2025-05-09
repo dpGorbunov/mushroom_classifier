@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mushroom ID{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <a href="/" class="logo-link">
+            <h1 class="logo">🍄 MushroomID</h1>
+        </a>
+        <nav class="nav-menu">
+            {% if user %}
+            <div class="user-actions">
+                <span class="username">{{ user.username }}</span>
+            </div>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Универсальная функция для обработки ошибок загрузки
+        function handleUploadError() {
+            const dropZone = document.getElementById('drop-zone');
+            if(dropZone) {
+                dropZone.classList.add('error-border');
+                setTimeout(() => dropZone.classList.remove('error-border'), 2000);
+            }
+        }
+    </script>
+</body>
+</html>
